@@ -1,14 +1,18 @@
 {
-    "name": "masterexploder/phpthumb",
+    "name": "dirmax/phpthumb",
     "type": "library",
     "license": "MIT",
     "description": "A library for manipulating images in PHP.",
-    "keywords": ["image", "resize", "rotate"],
+    "keywords": ["image", "resize", "rotate", "watermark"],
     "require": {
         "php": ">=5.3.0"
     },
-    "homepage": "https://github.com/masterexploder/PHPThumb",
+    "homepage": "https://github.com/dirmax/PHPThumb",
     "authors": [
+		{
+            "name": "Alex Hrischanovich",
+            "email": "info@asdf.by"
+        },
         {
             "name": "Ian Selby",
             "email": "ian@gxdlabs.com"
