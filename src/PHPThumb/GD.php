@@ -246,6 +246,94 @@ class GD extends PHPThumb
 
         return $this;
     }
+	
+	/**
+	 * Уменьшаем картинки и вписываем их в квадрат
+	 * 
+	 * @param int $maxWidth The maximum width of the image in pixels
+	 * @param int $maxHeight The maximum height of the image in pixels
+	 * @return GdThumb
+	 */
+	public function resizeToSquare($width = 0, $height = 0)
+	{
+		
+		// make sure our arguments are valid
+		if (!is_numeric($width) || $width > 5000)
+		{
+			throw new InvalidArgumentException('$width must be numeric');
+		}
+		
+		if (!is_numeric($height) || $height > 5000)
+		{
+			throw new InvalidArgumentException('$height must be numeric');
+		}
+		
+		$this->maxWidth = intval($width);
+		$this->maxHeight = intval($height);
+		/*
+		if ($width >= $this->currentDimensions['width']) {
+			$this->maxHeight = $height;
+		}
+		else {
+			$this->maxHeight = $height;
+		}
+		
+		if ($height >= $this->currentDimensions['height']) {
+			$this->maxWidth = $width;
+		}
+		else {
+			$this->maxWidth = $width;
+		}
+		*/
+		//var_dump($this->maxWidth);
+		//var_dump($this->maxHeight);
+		//exit;
+		
+		//$this->maxHeight = (intval($height) > $this->currentDimensions['height']) ? $this->currentDimensions['height'] : $height;
+		//$this->maxWidth  = (intval($width) > $this->currentDimensions['width']) ? $this->currentDimensions['width'] : $width;
+		
+		// get the new dimensions...
+		$this->calcImageSize($this->currentDimensions['width'], $this->currentDimensions['height']);
+		
+		// create the working image
+		if (function_exists('imagecreatetruecolor'))
+		{
+			$this->workingImage = imagecreatetruecolor($width, $height);
+		}
+		else
+		{
+			$this->workingImage = imagecreate($width, $height);
+		}
+		
+		if ($this->format != 'PNG') {
+			$bgWhite = imagecolorallocate($this->workingImage, 255, 255, 255);
+			imagefill($this->workingImage, 0, 0, $bgWhite);
+		}
+		
+		$this->preserveAlpha();		
+		
+		// and create the newly sized image
+		imagecopyresampled
+		(
+			$this->workingImage,
+			$this->oldImage,
+			($width - $this->newDimensions['newWidth']) / 2,
+			($height - $this->newDimensions['newHeight']) / 2,
+			0,
+			0,
+			$this->newDimensions['newWidth'],
+			$this->newDimensions['newHeight'],
+			$this->currentDimensions['width'],
+			$this->currentDimensions['height']
+		);
+
+		// update all the variables and resources to be correct
+		$this->oldImage 					= $this->workingImage;
+		$this->currentDimensions['width'] 	= $this->newDimensions['newWidth'];
+		$this->currentDimensions['height'] 	= $this->newDimensions['newHeight'];
+		
+		return $this;
+	}
 
     /**
      * Adaptively Resizes the Image
@@ -941,6 +1029,14 @@ class GD extends PHPThumb
         } elseif ($this->options['interlace'] === false) {
             imageinterlace($this->oldImage, 0);
         }
+		
+		//Execute any plugins
+        if ($this->plugins) {
+            foreach ($this->plugins as $plugin) {
+                /* @var $plugin \PHPThumb\PluginInterface */
+                $plugin->execute($this);
+            }
+        }
 
         switch ($format) {
             case 'GIF':
@@ -1381,14 +1477,14 @@ class GD extends PHPThumb
     protected function preserveAlpha()
     {
         if ($this->format == 'PNG' && $this->options['preserveAlpha'] === true) {
-            imagealphablending($this->workingImage, false);
+            imagealphablending($this->workingImage, true);
 
             $colorTransparent = imagecolorallocatealpha(
                 $this->workingImage,
                 $this->options['alphaMaskColor'][0],
                 $this->options['alphaMaskColor'][1],
                 $this->options['alphaMaskColor'][2],
-                0
+                127
             );
 
             imagefill($this->workingImage, 0, 0, $colorTransparent);
