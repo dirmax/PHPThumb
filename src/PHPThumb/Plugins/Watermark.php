@@ -7,12 +7,14 @@ class Watermark implements \PHPThumb\PluginInterface {
 	protected $_pathWatermark;
 	protected $_currentDimensions;
     protected $_workingImage;
+    protected $_widthFill;
 	
-	public function __construct(int $rightMargin, int $bottomMargin, string $pathToWatermark) {
+	public function __construct(int $rightMargin, int $bottomMargin, string $pathToWatermark, $widthFill = .5) {
 	
 		$this->_rightMargin = $rightMargin;
 		$this->_bottomMargin = $bottomMargin;
 		$this->_pathToWatermark = $pathToWatermark;
+		$this->_widthFill = $widthFill;
 	
 	}
 
@@ -34,7 +36,7 @@ class Watermark implements \PHPThumb\PluginInterface {
 			$isx = imagesx($this->_workingImage);
 			$isy = imagesy($this->_workingImage);
 
-			$newThumbWidth = $isx * 1/2;
+			$newThumbWidth = $isx * $this->_widthFill;
 			$newThumbHeight = $sy * $newThumbWidth / $sx;
 
 			$this->imageCopyMergeAlpha($this->_workingImage,
