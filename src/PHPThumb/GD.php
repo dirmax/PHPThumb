@@ -56,7 +56,7 @@ class GD extends PHPThumb
      *
      * @var array
      */
-    protected $options;
+    protected $options = [];
 
     /**
      * The maximum width an image can be after resizing (in pixels)
@@ -246,28 +246,28 @@ class GD extends PHPThumb
 
         return $this;
     }
-	
+
 	/**
 	 * Уменьшаем картинки и вписываем их в квадрат
-	 * 
+	 *
 	 * @param int $maxWidth The maximum width of the image in pixels
 	 * @param int $maxHeight The maximum height of the image in pixels
 	 * @return GdThumb
 	 */
 	public function resizeToSquare($width = 0, $height = 0)
 	{
-		
+
 		// make sure our arguments are valid
 		if (!is_numeric($width) || $width > 5000)
 		{
 			throw new InvalidArgumentException('$width must be numeric');
 		}
-		
+
 		if (!is_numeric($height) || $height > 5000)
 		{
 			throw new InvalidArgumentException('$height must be numeric');
 		}
-		
+
 		$this->maxWidth = intval($width);
 		$this->maxHeight = intval($height);
 		/*
@@ -277,7 +277,7 @@ class GD extends PHPThumb
 		else {
 			$this->maxHeight = $height;
 		}
-		
+
 		if ($height >= $this->currentDimensions['height']) {
 			$this->maxWidth = $width;
 		}
@@ -288,13 +288,13 @@ class GD extends PHPThumb
 		//var_dump($this->maxWidth);
 		//var_dump($this->maxHeight);
 		//exit;
-		
+
 		//$this->maxHeight = (intval($height) > $this->currentDimensions['height']) ? $this->currentDimensions['height'] : $height;
 		//$this->maxWidth  = (intval($width) > $this->currentDimensions['width']) ? $this->currentDimensions['width'] : $width;
-		
+
 		// get the new dimensions...
 		$this->calcImageSize($this->currentDimensions['width'], $this->currentDimensions['height']);
-		
+
 		// create the working image
 		if (function_exists('imagecreatetruecolor'))
 		{
@@ -304,14 +304,14 @@ class GD extends PHPThumb
 		{
 			$this->workingImage = imagecreate($width, $height);
 		}
-		
+
 		if ($this->format != 'PNG') {
 			$bgWhite = imagecolorallocate($this->workingImage, 255, 255, 255);
 			imagefill($this->workingImage, 0, 0, $bgWhite);
 		}
-		
-		$this->preserveAlpha();		
-		
+
+		$this->preserveAlpha();
+
 		// and create the newly sized image
 		imagecopyresampled
 		(
@@ -331,7 +331,7 @@ class GD extends PHPThumb
 		$this->oldImage 					= $this->workingImage;
 		$this->currentDimensions['width'] 	= $this->newDimensions['newWidth'];
 		$this->currentDimensions['height'] 	= $this->newDimensions['newHeight'];
-		
+
 		return $this;
 	}
 
@@ -1029,7 +1029,7 @@ class GD extends PHPThumb
         } elseif ($this->options['interlace'] === false) {
             imageinterlace($this->oldImage, 0);
         }
-		
+
 		//Execute any plugins
         if ($this->plugins) {
             foreach ($this->plugins as $plugin) {
